@@ -22,3 +22,8 @@ class AdsOut(BaseModel):
     price: float
     category: str
 
+
+
+
+class model_config:
+    from_attributes = True
