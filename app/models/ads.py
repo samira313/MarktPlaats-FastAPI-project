@@ -1,13 +1,14 @@
-#voor de vorm van de data die in DB gaan opslaan
-from app.db.dbAds import Base
-
+from app.db.ads import Base
 from sqlalchemy import Column, Integer, String, Float
 
 
-class Ads(Base):
-    __tablename__ = 'advertises'
+class Ad(Base):
+    """
+      ORM model representing an advertisement stored in the database.
+      """
+    __tablename__ = 'advertisements'
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    description = Column(String, nullable=True)
+    title = Column(String(255), nullable=False)
+    description = Column(String(1000), nullable=True)
     price = Column(Float, nullable=False)
-    category = Column(String, nullable=False)
+    category = Column(String(100), nullable=False)
