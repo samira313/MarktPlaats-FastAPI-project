@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.routers.ads import router as ads_router
-from app.db.ads import Base, engine
+from app.db.db import Base, engine
 from app.models.ads import Ad
 
 
