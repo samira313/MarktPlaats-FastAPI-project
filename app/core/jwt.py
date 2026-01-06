@@ -1,4 +1,5 @@
 import os
+from uuid import uuid4
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import jwt, JWTError
@@ -15,7 +16,14 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    to_encode.update({"exp": expire})
+    to_encode.update({
+        "exp": expire,
+         "jti": str(uuid4()),
+    })
+
+    # jti (unique token id) - needed for logout/blacklist
+    if "jti" not in to_encode:
+        to_encode["jti"] = str(uuid.uuid4())
 
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 

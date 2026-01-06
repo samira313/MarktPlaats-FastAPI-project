@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, func
-from app.db.ads import Base, engine
+from app.db.database import Base, engine
 
 class User(Base):
     """
