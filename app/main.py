@@ -8,6 +8,7 @@ from app.routers.register import router as register_router
 from app.routers.login import router as login_router
 from app.routers.users import router as users_router
 from app.routers.logout import router as logout_router
+from app.routers.comments import router as comments_router
 
 from app.routers.logout import router as logout_router
 from app.routers.users import router as users_router
@@ -45,7 +46,7 @@ app.include_router(register_router)
 app.include_router(users_router)
 app.include_router(logout_router)
 
-
+app.include_router(comments_router)
 
 app.include_router(users_router)
 app.include_router(logout_router)
