@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, PositiveFloat
 from typing import Optional
 
 
@@ -6,7 +6,7 @@ class AdBase(BaseModel):
     """Shared fields for advertisement schemas."""
     title: str
     description: Optional[str] = None
-    price: float
+    price: PositiveFloat
     category: str
 
 

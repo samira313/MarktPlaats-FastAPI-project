@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import (APIRouter, Depends, HTTPException, status)
 from sqlalchemy.orm import Session
 from typing import List
-
 from app.db.database import get_db
 from app.models.ads import Ad
 from app.schemas.ads import AdOut, AdCreate, AdUpdate
@@ -10,7 +9,7 @@ router = APIRouter(prefix="/ads", tags=["ads"])
 
 
 def get_ad_or_404(db: Session, ad_id: int) -> Ad:
-    #ad = db.get(Ad, ad_id)  # query/filter
+    # ad = db.get(Ad, ad_id)  # query/filter
     ad = db.query(Ad).filter(Ad.id == ad_id).first()
 
     if not ad:
@@ -19,9 +18,8 @@ def get_ad_or_404(db: Session, ad_id: int) -> Ad:
 
 
 # 1- create ad
-@router.post("/",
-             response_model=AdOut,
-             status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=AdOut,
+             status_code=status.HTTP_201_CREATED, summary="Create ad", )
 def create_ad(payload: AdCreate, db: Session = Depends(get_db)):
     # 1) Convert Pydantic schema -> dict
     data = payload.model_dump()
@@ -40,8 +38,17 @@ def create_ad(payload: AdCreate, db: Session = Depends(get_db)):
     return ad
 
 
-# 2- update ad
-@router.patch("/{ad_id}", response_model=AdOut)
+# 2- get id ad
+@router.get("/{ad_id}", response_model=AdOut,
+            summary="Get ad by id", description="Get an advertisement by id.")
+def get_ad_by_id(ad_id: int, db: Session = Depends(get_db)):
+    ad = get_ad_or_404(db, ad_id)
+    return ad
+
+
+# 3- update ad
+@router.patch("/{ad_id}", response_model=AdOut,
+              summary="Update ad", description="Update an advertisement.")
 def update_ad(ad_id: int,
               payload: AdUpdate, db: Session = Depends(get_db)):
     # 1) Get the current ad from DB
@@ -64,9 +71,9 @@ def update_ad(ad_id: int,
     return ad
 
 
-# 3- delete ad
-@router.delete("/{ad_id}",
-               status_code=status.HTTP_204_NO_CONTENT)
+# 4- delete ad
+@router.delete("/{ad_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete ad",
+               description="Delete an advertisement.")
 def delete_ad(ad_id: int, db: Session = Depends(get_db)):
     # 1) Get ad from DB
     ad = get_ad_or_404(db, ad_id)
@@ -79,15 +86,9 @@ def delete_ad(ad_id: int, db: Session = Depends(get_db)):
     return
 
 
-# 4- get id ad
-@router.get("/{ad_id}", response_model=AdOut)
-def get_ad_by_id(ad_id: int, db: Session = Depends(get_db)):
-    ad = get_ad_or_404(db, ad_id)
-    return ad
-
-
 # 5- get all ads
-@router.get("/", response_model=List[AdOut])
+@router.get("/", response_model=List[AdOut],
+            summary="List ads", description="Return a list of ads.")
 def get_all_ads(db: Session = Depends(get_db)):
     ads = db.query(Ad).all()
     return ads
