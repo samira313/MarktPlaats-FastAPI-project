@@ -6,6 +6,8 @@ from app.routers.ad_search import router as ad_search_router
 
 from app.routers.register import router as register_router
 from app.routers.login import router as login_router
+from app.routers.users import router as users_router
+from app.routers.logout import router as logout_router
 
 from app.routers.logout import router as logout_router
 from app.routers.users import router as users_router
@@ -38,7 +40,13 @@ app.include_router(ad_search_router)  # /ads/search
 app.include_router(register_router)
 app.include_router(login_router)
 
+
 app.include_router(register_router)
+app.include_router(users_router)
+app.include_router(logout_router)
+
+
+
 app.include_router(users_router)
 app.include_router(logout_router)
 

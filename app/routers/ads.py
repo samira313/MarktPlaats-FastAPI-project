@@ -39,7 +39,7 @@ def create_ad(payload: AdCreate, db: Session = Depends(get_db)):
 
 
 # 2- get id ad
-@router.get("/{ad_id}", response_model=AdOut,
+@router.get("/{ad_id:int}", response_model=AdOut,
             summary="Get ad by id", description="Get an advertisement by id.")
 def get_ad_by_id(ad_id: int, db: Session = Depends(get_db)):
     ad = get_ad_or_404(db, ad_id)
@@ -47,7 +47,7 @@ def get_ad_by_id(ad_id: int, db: Session = Depends(get_db)):
 
 
 # 3- update ad
-@router.patch("/{ad_id}", response_model=AdOut,
+@router.patch("/{ad_id:int}", response_model=AdOut,
               summary="Update ad", description="Update an advertisement.")
 def update_ad(ad_id: int,
               payload: AdUpdate, db: Session = Depends(get_db)):
@@ -72,7 +72,7 @@ def update_ad(ad_id: int,
 
 
 # 4- delete ad
-@router.delete("/{ad_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete ad",
+@router.delete("/{ad_id:int}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete ad",
                description="Delete an advertisement.")
 def delete_ad(ad_id: int, db: Session = Depends(get_db)):
     # 1) Get ad from DB
