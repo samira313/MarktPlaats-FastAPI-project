@@ -9,7 +9,7 @@ DATABASE_URL = "sqlite:///./marktplaats.db"
 
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False},
+    connect_args={"check_same_thread": False}
 )
 
 # Create a session factory for database connections

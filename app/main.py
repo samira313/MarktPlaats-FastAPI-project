@@ -16,7 +16,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-
 # create tables
 Base.metadata.create_all(bind=engine)
 
