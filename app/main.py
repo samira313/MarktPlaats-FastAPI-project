@@ -4,7 +4,8 @@ from app.routers.ads import router as ads_router
 
 from app.routers.register import router as register_router
 from app.routers.login import router as login_router
-
+from app.routers.logout import router as logout_router
+from app.routers.users import router as users_router
 
 from app.db.database import Base, engine
 from app.models.ads import Ad
@@ -29,4 +30,7 @@ def root():
 app.include_router(ads_router)
 app.include_router(register_router)
 app.include_router(login_router)
+app.include_router(users_router)
+app.include_router(logout_router)
+
 
