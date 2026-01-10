@@ -1,5 +1,7 @@
 from app.db.database import Base
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import (Column, Integer, String, Float,
+                        ForeignKey, DateTime, func, JSON)
+from sqlalchemy.orm import relationship
 
 
 class Ad(Base):
@@ -11,4 +13,17 @@ class Ad(Base):
     title = Column(String(255), nullable=False)
     description = Column(String(1000), nullable=True)
     price = Column(Float, nullable=False)
-    category = Column(String(100), nullable=False)
+    category = Column(JSON, nullable=False)
+
+    owner_id = Column(Integer, ForeignKey("users.id"),
+                      nullable=False, index=True)
+    owner = relationship("User")
+
+    created_at = Column(DateTime(timezone=True),
+                        server_default=func.now(),
+                        nullable=False)
+
+    updated_at = Column(DateTime(timezone=True),
+                        server_default=func.now(),
+                        onupdate=func.now(),
+                        nullable=False)
