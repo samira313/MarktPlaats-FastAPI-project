@@ -14,9 +14,7 @@ def get_ads_service(db: Session = Depends(get_db)):
     return AdsService(db)
 
 
-# 1- create ad
-@router.post("/", response_model=AdOut, status_code=status.HTTP_201_CREATED,
-             summary="Create a new advertisement",
+@router.post("/", response_model=AdOut, status_code=status.HTTP_201_CREATED, summary="Create a new advertisement",
              description="""
              Creates a new advertisement for the currently authenticated user.
 
@@ -37,9 +35,7 @@ def create_ad_endpoint(payload: AdCreate, current_user=Depends(get_current_user)
     return service.create_ad(payload, current_user.id)
 
 
-# 2- get id ad
-@router.get("/{ad_id:int}", response_model=AdOut,
-            summary="Get advertisement by ID",
+@router.get("/{ad_id:int}", response_model=AdOut, summary="Get advertisement by ID",
             description="""
             Returns a single advertisement by its ID.
 
@@ -50,14 +46,11 @@ def create_ad_endpoint(payload: AdCreate, current_user=Depends(get_current_user)
             Errors:
             - 404 if the advertisement does not exist.
             """)
-def get_ad_by_id(ad_id: int,
-                 service: AdsService = Depends(get_ads_service)):
+def get_ad_by_id(ad_id: int, service: AdsService = Depends(get_ads_service)):
     return service.get_ad_or_404(ad_id)
 
 
-# 3- update ad
-@router.patch("/{ad_id:int}", response_model=AdOut,
-              summary="Update an existing advertisement",
+@router.patch("/{ad_id:int}", response_model=AdOut, summary="Update an existing advertisement",
               description="""
               Updates an existing advertisement.
 
@@ -80,9 +73,7 @@ def update_ad(ad_id: int, payload: AdUpdate, current_user=Depends(get_current_us
     return service.update_ad(ad_id, payload, current_user.id)
 
 
-# 4- delete ad
-@router.delete("/{ad_id:int}", status_code=status.HTTP_204_NO_CONTENT,
-               summary="Delete an advertisement",
+@router.delete("/{ad_id:int}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete an advertisement",
                description="""
                Deletes an advertisement by its ID.
 
@@ -101,9 +92,7 @@ def delete_ad_endpoint(ad_id: int, current_user=Depends(get_current_user),
     return None
 
 
-# 5- get all ads
-@router.get("/", response_model=List[AdOut],
-            summary="List all advertisements",
+@router.get("/", response_model=List[AdOut], summary="List all advertisements",
             description="""
             Returns a list of all advertisements.
 

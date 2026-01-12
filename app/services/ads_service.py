@@ -19,8 +19,7 @@ class AdsService:
     def get_ad_or_404(self, ad_id: int) -> Ad:
         ad = self.db.query(Ad).filter(Ad.id == ad_id).first()
         if not ad:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail=f"Ad {ad_id} not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Ad {ad_id} not found")
         return ad
 
     def create_ad(self, payload, current_user_id: int):
