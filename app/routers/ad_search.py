@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy import select, exists, func, column
 from typing import List
 
 from app.db.database import get_db
@@ -12,10 +13,11 @@ router = APIRouter(
     tags=["ads"]
 )
 
+
 @router.get("/search", response_model=List[AdOut])
 def search_ads(
-    params: AdSearch = Depends(),
-    db: Session = Depends(get_db)
+        params: AdSearch = Depends(),
+        db: Session = Depends(get_db)
 ):
     query = db.query(Ad)
 
@@ -23,7 +25,10 @@ def search_ads(
         query = query.filter(Ad.title.ilike(f"%{params.title}%"))
 
     if params.category:
-        query = query.filter(Ad.category == params.category)
+        je = func.json_each(Ad.category)
+        query = query.filter(
+            exists(select(1).select_from(je).
+            where(column("value") == params.category)))
 
     if params.min_price is not None:
         query = query.filter(Ad.price >= params.min_price)
@@ -32,4 +37,3 @@ def search_ads(
         query = query.filter(Ad.price <= params.max_price)
 
     return query.order_by(Ad.id.desc()).all()
-

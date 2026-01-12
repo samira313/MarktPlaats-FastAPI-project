@@ -1,5 +1,12 @@
-from pydantic import BaseModel, ConfigDict, PositiveFloat
-from typing import Optional
+from pydantic import (BaseModel
+, ConfigDict, PositiveFloat)
+from typing import Optional, List
+from datetime import datetime
+
+
+class OwnerOut(BaseModel):
+    username: str
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AdBase(BaseModel):
@@ -7,7 +14,7 @@ class AdBase(BaseModel):
     title: str
     description: Optional[str] = None
     price: PositiveFloat
-    category: str
+    category: List[str]
 
 
 class AdCreate(AdBase):
@@ -22,12 +29,16 @@ class AdUpdate(BaseModel):
        """
     title: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[float] = None
-    category: Optional[str] = None
+    price: Optional[PositiveFloat] = None
+    category: Optional[List[str]] = None
 
 
 class AdOut(AdBase):
     """Schema returned to the client."""
     id: int
+    created_at: datetime
+    owner: OwnerOut
+
+
     # Allows returning SQLAlchemy objects directly (ORM mode in Pydantic v2)
     model_config = ConfigDict(from_attributes=True)
