@@ -15,15 +15,10 @@ class Ad(Base):
     price = Column(Float, nullable=False)
     category = Column(JSON, nullable=False)
 
-    owner_id = Column(Integer, ForeignKey("users.id"),
-                      nullable=False, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id"),nullable=False, index=True)
     owner = relationship("User")
 
-    created_at = Column(DateTime(timezone=True),
-                        server_default=func.now(),
-                        nullable=False)
+    created_at = Column(DateTime(timezone=True),server_default=func.now(),nullable=False)
 
-    updated_at = Column(DateTime(timezone=True),
-                        server_default=func.now(),
-                        onupdate=func.now(),
+    updated_at = Column(DateTime(timezone=True),server_default=func.now(),onupdate=func.now(),
                         nullable=False)
