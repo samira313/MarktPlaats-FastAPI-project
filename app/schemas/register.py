@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from datetime import datetime
 
 
@@ -36,8 +36,9 @@ class UserOut(BaseModel):
     # created_at: datetime  # if you have it
     created_at: datetime
 
-    class Config:
-        """
-        Allows Pydantic to read data from SQLAlchemy objects.
-        """
-        from_attributes = True
+    # class Config:
+    #     """
+    #     Allows Pydantic to read data from SQLAlchemy objects.
+    #     """
+    #     from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

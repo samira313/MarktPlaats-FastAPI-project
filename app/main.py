@@ -18,7 +18,7 @@ from app.routers.ws_messages import router as ws_messages_router
 
 from app.db.database import Base, engine
 
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory="templates")
 app = FastAPI(
     title="Marktplaats API",
     description="Backend API for the Marktplaats project",

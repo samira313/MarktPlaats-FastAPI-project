@@ -27,7 +27,7 @@
 
     function connectWS(){
       const token = document.getElementById("token").value.trim();
-      ws = new WebSocket(`ws://localhost:8000/ws/messages?token=${token}`);
+      ws = new WebSocket(`ws://192.168.1.205:8000/ws/messages?token=${token}`);
 
       ws.onopen = () => log("✅ connected");
       ws.onmessage = (e) => log("📩 " + e.data);
