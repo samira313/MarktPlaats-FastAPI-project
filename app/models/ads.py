@@ -14,6 +14,7 @@ class Ad(Base):
     description = Column(String(1000), nullable=True)
     price = Column(Float, nullable=False)
     category = Column(JSON, nullable=False)
+    status = Column(String(20), default="available", nullable=False)
 
     owner_id = Column(Integer, ForeignKey("users.id"),nullable=False, index=True)
     owner = relationship("User")

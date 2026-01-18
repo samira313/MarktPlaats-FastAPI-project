@@ -1,7 +1,10 @@
 from pydantic import (BaseModel
 , ConfigDict, PositiveFloat)
-from typing import Optional, List
+from typing import Optional, List, Literal
 from datetime import datetime
+
+
+
 
 
 class OwnerOut(BaseModel):
@@ -15,6 +18,15 @@ class AdBase(BaseModel):
     description: Optional[str] = None
     price: PositiveFloat
     category: List[str]
+
+class AdOut(AdBase):
+    """Schema returned to the client."""
+    id: int
+    status: Literal["available", "reserved", "sold"]  #
+    created_at: datetime
+    owner: OwnerOut
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AdCreate(AdBase):
@@ -36,6 +48,7 @@ class AdUpdate(BaseModel):
 class AdOut(AdBase):
     """Schema returned to the client."""
     id: int
+    status: Literal["available", "reserved", "sold"]
     created_at: datetime
     owner: OwnerOut
 
