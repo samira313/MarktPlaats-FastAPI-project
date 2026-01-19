@@ -35,5 +35,6 @@ def search_ads(
 
     if params.max_price is not None:
         query = query.filter(Ad.price <= params.max_price)
-
+    if params.status:
+        query = query.filter(Ad.status == params.status)
     return query.order_by(Ad.id.desc()).all()

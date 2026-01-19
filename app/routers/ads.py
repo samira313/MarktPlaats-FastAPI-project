@@ -1,3 +1,7 @@
+from enum import Enum
+from pydantic import BaseModel
+from fastapi import HTTPException
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from typing import List
@@ -102,3 +106,31 @@ def delete_ad_endpoint(ad_id: int, current_user=Depends(get_current_user),
             """)
 def get_all_ads(service: AdsService = Depends(get_ads_service), ):
     return service.list_ads()
+class AdStatus(str, Enum):
+    available = "available"
+    reserved = "reserved"
+    sold = "sold"
+
+
+class AdStatusUpdate(BaseModel):
+    status: AdStatus
+
+
+@router.patch("/{ad_id:int}/status", response_model=AdOut)
+def update_ad_status(
+    ad_id: int,
+    payload: AdStatusUpdate,
+    current_user=Depends(get_current_user),
+    service: AdsService = Depends(get_ads_service),
+):
+    ad = service.get_ad_or_404(ad_id)
+
+    # 🔒
+    if ad.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    ad.status = payload.status
+    service.db.commit()
+    service.db.refresh(ad)
+
+    return ad
