@@ -1,50 +1,523 @@
+<!--<!doctype html>-->
+<!--<html>-->
+<!--<head><meta charset="utf-8"><title>Demo Chat</title></head>-->
+<!--<body>-->
+<!--  <h3>WebSocket Chat Demo</h3>-->
+
+<!--  <label>Token (JWT):</label><br/>-->
+<!--  <input id="token" style="width:600px" /><br/><br/>-->
+
+<!--  <label>Receiver ID:</label><br/>-->
+<!--  <input id="receiver" type="number" /><br/><br/>-->
+
+<!--  <label>Message:</label><br/>-->
+<!--  <input id="msg" style="width:600px" />-->
+<!--  <button onclick="sendMsg()">Send</button>-->
+
+<!--  <pre id="log" style="background:#111;color:#0f0;padding:10px;height:300px;overflow:auto;"></pre>-->
+
+<!--  <button onclick="connectWS()">Connect</button>-->
+
+<!--  <script>-->
+<!--    let ws;-->
+
+<!--    function log(text){-->
+<!--      document.getElementById("log").textContent += text + "\n";-->
+<!--    }-->
+
+<!--    function connectWS(){-->
+<!--      const token = document.getElementById("token").value.trim();-->
+<!--      ws = new WebSocket(`ws://192.168.1.205:8000/ws/messages?token=${token}`);-->
+
+<!--      ws.onopen = () => log("✅ connected");-->
+<!--      ws.onmessage = (e) => log("📩 " + e.data);-->
+<!--      ws.onclose = () => log("❌ disconnected");-->
+<!--    }-->
+
+<!--    function sendMsg(){-->
+<!--      const receiver_id = Number(document.getElementById("receiver").value);-->
+<!--      const content = document.getElementById("msg").value;-->
+
+<!--      ws.send(JSON.stringify({-->
+<!--          receiver_id: Number(document.getElementById("receiver").value),-->
+<!--  content: document.getElementById("msg").value,-->
+<!--  ad_id: null-->
+<!--      }));-->
+<!--      document.getElementById("msg").value = "";-->
+<!--    }-->
+<!--  </script>-->
+<!--</body>-->
+<!--</html>-->
 <!doctype html>
-<html>
-<head><meta charset="utf-8"><title>Demo Chat</title></head>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demo Chat</title>
+  <style>
+    :root{
+      --bg:#0b141a;
+      --panel:#111b21;
+      --panel2:#0f1a20;
+      --text:#e9edef;
+      --muted:#8696a0;
+      --accent:#00a884;
+      --danger:#ff5c5c;
+      --bubbleMe:#005c4b;
+      --bubbleOther:#202c33;
+      --border:rgba(255,255,255,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:linear-gradient(180deg, #0b141a, #071015);
+      color:var(--text);
+      height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+    .app{
+      width:min(980px, 100%);
+      height:min(720px, 100%);
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:14px;
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 320px 1fr;
+    }
+    .left{
+      background:var(--panel2);
+      border-right:1px solid var(--border);
+      display:flex;
+      flex-direction:column;
+      padding:14px;
+      gap:10px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:6px 4px 10px 4px;
+    }
+    .brand h1{
+      font-size:16px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .status{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background:var(--danger);
+      display:inline-block;
+    }
+    .dot.ok{ background: #35d07f; }
+    .card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:rgba(255,255,255,.03);
+    }
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:#0b141a;
+      color:var(--text);
+      outline:none;
+    }
+    input:focus{ border-color: rgba(0,168,132,.6); }
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .btn{
+      border:none;
+      border-radius:10px;
+      padding:10px 12px;
+      background:var(--accent);
+      color:#00130e;
+      font-weight:700;
+      cursor:pointer;
+      transition:.15s transform ease, .15s opacity ease;
+      white-space:nowrap;
+    }
+    .btn:active{ transform:scale(.98); }
+    .btn.secondary{
+      background:transparent;
+      border:1px solid var(--border);
+      color:var(--text);
+      font-weight:600;
+    }
+    .btn:disabled{
+      opacity:.5;
+      cursor:not-allowed;
+    }
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+      margin-top:8px;
+    }
+
+    .right{
+      display:flex;
+      flex-direction:column;
+      height:100%;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(0,168,132,.12), transparent 35%),
+        radial-gradient(circle at 80% 30%, rgba(0,168,132,.08), transparent 40%),
+        #0b141a;
+    }
+    .topbar{
+      padding:12px 14px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:rgba(17,27,33,.8);
+      backdrop-filter: blur(6px);
+    }
+    .chatTitle{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .chatTitle .name{
+      font-weight:700;
+      font-size:14px;
+    }
+    .chatTitle .sub{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .messages{
+      flex:1;
+      padding:14px;
+      overflow:auto;
+    }
+    .bubble{
+      max-width: 76%;
+      padding:10px 12px;
+      border-radius:12px;
+      margin:8px 0;
+      line-height:1.35;
+      border:1px solid var(--border);
+      position:relative;
+      word-wrap:break-word;
+      white-space:pre-wrap;
+    }
+    .me{
+      margin-left:auto;
+      background:var(--bubbleMe);
+    }
+    .other{
+      margin-right:auto;
+      background:var(--bubbleOther);
+    }
+    .meta{
+      margin-top:6px;
+      font-size:11px;
+      color:rgba(233,237,239,.75);
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+    }
+    .composer{
+      padding:12px;
+      border-top:1px solid var(--border);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      background:rgba(17,27,33,.85);
+      backdrop-filter: blur(6px);
+    }
+    .composer input{
+      flex:1;
+    }
+    .toast{
+      font-size:12px;
+      color:var(--muted);
+      padding:10px 12px;
+      border-top:1px dashed var(--border);
+    }
+
+    @media (max-width: 860px){
+      .app{ grid-template-columns: 1fr; height: min(780px, 100%); }
+      .left{ border-right:none; border-bottom:1px solid var(--border); }
+    }
+  </style>
+</head>
 <body>
-  <h3>WebSocket Chat Demo</h3>
+  <div class="app">
 
-  <label>Token (JWT):</label><br/>
-  <input id="token" style="width:600px" /><br/><br/>
+    <!-- LEFT: settings -->
+    <div class="left">
+      <div class="brand">
+        <h1>WebSocket Chat Demo</h1>
+        <div class="status" id="statusPill">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">Disconnected</span>
+        </div>
+      </div>
 
-  <label>Receiver ID:</label><br/>
-  <input id="receiver" type="number" /><br/><br/>
+      <div class="card">
+        <label>Token (JWT)</label>
+        <input id="token" placeholder="Paste JWT token here..." />
 
-  <label>Message:</label><br/>
-  <input id="msg" style="width:600px" />
-  <button onclick="sendMsg()">Send</button>
+        <div style="height:10px"></div>
 
-  <pre id="log" style="background:#111;color:#0f0;padding:10px;height:300px;overflow:auto;"></pre>
+        <div class="row">
+          <div style="flex:1">
+            <label>Receiver ID</label>
+            <input id="receiver" type="number" placeholder="" />
+          </div>
+          <div style="width:120px; align-self:end;">
+            <button class="btn" id="connectBtn" onclick="connectWS()">Connect</button>
+          </div>
+        </div>
 
-  <button onclick="connectWS()">Connect</button>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn secondary" onclick="clearChat()">Clear chat</button>
+          <button class="btn secondary" onclick="copyWsUrl()">Copy WS URL</button>
+        </div>
+
+        <div class="hint">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hint" id="debugHint">
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: chat -->
+    <div class="right">
+      <div class="topbar">
+        <div class="chatTitle">
+          <div class="name">Conversation</div>
+          <div class="sub" id="subTitle">Send a message to receiver_id</div>
+        </div>
+        <button class="btn secondary" onclick="disconnectWS()">Disconnect</button>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <div class="composer">
+        <input id="msg" placeholder="Type a message..." onkeydown="handleEnter(event)" />
+        <button class="btn" id="sendBtn" onclick="sendMsg()" disabled>Send</button>
+      </div>
+
+      <div class="toast" id="toast">
+        Ready. Connect first.
+      </div>
+    </div>
+
+  </div>
 
   <script>
-    let ws;
+    let ws = null;
+    let isConnected = false;
 
-    function log(text){
-      document.getElementById("log").textContent += text + "\n";
+
+
+    const WS_URL = () => {
+      const token = document.getElementById("token").value.trim();
+      // same host as the page (safe for 2 laptops on same network)
+      const host = window.location.host; // e.g. 192.168.1.205:8000
+      const proto = window.location.protocol === "https:" ? "wss" : "ws";
+      return `${proto}://${host}/ws/messages?token=${encodeURIComponent(token)}`;
+    };
+
+    function setStatus(ok, text){
+      const dot = document.getElementById("statusDot");
+      const pill = document.getElementById("statusPill");
+      const st = document.getElementById("statusText");
+      dot.classList.toggle("ok", !!ok);
+      st.textContent = text;
+      pill.style.borderColor = ok ? "rgba(53,208,127,.35)" : "rgba(255,92,92,.35)";
+    }
+
+    function toast(text){
+      document.getElementById("toast").textContent = text;
+    }
+
+    function addBubble({mine, content, meta}){
+      const wrap = document.getElementById("messages");
+      const b = document.createElement("div");
+      b.className = "bubble " + (mine ? "me" : "other");
+      b.textContent = content;
+
+      if(meta){
+        const m = document.createElement("div");
+        m.className = "meta";
+        m.textContent = meta;
+        b.appendChild(m);
+      }
+
+      wrap.appendChild(b);
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    function safeJsonParse(str){
+      try { return JSON.parse(str); } catch { return null; }
     }
 
     function connectWS(){
       const token = document.getElementById("token").value.trim();
-      ws = new WebSocket(`ws://192.168.1.205:8000/ws/messages?token=${token}`);
+      const receiver = document.getElementById("receiver").value.trim();
 
-      ws.onopen = () => log("✅ connected");
-      ws.onmessage = (e) => log("📩 " + e.data);
-      ws.onclose = () => log("❌ disconnected");
+      if(!token){
+        toast("❗ Token is required.");
+        setStatus(false, "Missing token");
+        return;
+      }
+      if(!receiver){
+        toast("❗ Receiver ID is required.");
+        return;
+      }
+
+      // close existing
+      if(ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)){
+        ws.close();
+      }
+
+      const url = WS_URL();
+      ws = new WebSocket(url);
+
+      ws.onopen = () => {
+        isConnected = true;
+        setStatus(true, "Connected");
+        document.getElementById("sendBtn").disabled = false;
+        toast("✅ Connected. You can send messages.");
+        document.getElementById("subTitle").textContent = `Sending to receiver_id = ${receiver}`;
+      };
+
+      ws.onmessage = (e) => {
+        const data = safeJsonParse(e.data);
+
+        // Backend may send:
+        // {status:"sent", message:{...}} or {status:"new_message", message:{...}}
+        if(data && data.status && data.message){
+          const msg = data.message;
+          const receiverId = Number(document.getElementById("receiver").value);
+          const mine = (data.status === "sent") || (msg.receiver_id === receiverId ? false : false);
+
+          // If status is "sent" => mine
+          const isMine = data.status === "sent";
+
+          addBubble({
+            mine: isMine,
+            content: msg.content ?? JSON.stringify(msg),
+            meta: `#${msg.id ?? "?"} • ${msg.created_at ? new Date(msg.created_at).toLocaleString() : ""}`
+          });
+
+          if(data.status === "new_message"){
+            toast("📩 New message received");
+          }
+          return;
+        }
+
+        // fallback (raw)
+        addBubble({ mine:false, content: e.data, meta: "raw" });
+      };
+
+      ws.onclose = () => {
+        isConnected = false;
+        setStatus(false, "Disconnected");
+        document.getElementById("sendBtn").disabled = true;
+        toast("❌ Disconnected.");
+      };
+
+      ws.onerror = () => {
+        toast("⚠️ WebSocket error. Check server, token, or network.");
+      };
+    }
+
+    function disconnectWS(){
+      if(ws){
+        ws.close();
+      }
     }
 
     function sendMsg(){
+      if(!ws || ws.readyState !== WebSocket.OPEN){
+        toast("❗ Not connected yet.");
+        return;
+      }
+
       const receiver_id = Number(document.getElementById("receiver").value);
       const content = document.getElementById("msg").value;
 
-      ws.send(JSON.stringify({
-          receiver_id: Number(document.getElementById("receiver").value),
-  content: document.getElementById("msg").value,
-  ad_id: null
-      }));
+      if(!receiver_id || !content.trim()){
+        toast("❗ Receiver and message are required.");
+        return;
+      }
+
+      // Keep payload EXACTLY like your backend expects
+      const payload = {
+        receiver_id: receiver_id,
+        content: content,
+        ad_id: null
+      };
+
+      ws.send(JSON.stringify(payload));
       document.getElementById("msg").value = "";
+      toast("📤 Sending...");
     }
+
+    function handleEnter(e){
+      if(e.key === "Enter"){
+        sendMsg();
+      }
+    }
+
+    function clearChat(){
+      document.getElementById("messages").innerHTML = "";
+      toast("🧹 Chat cleared.");
+    }
+
+    function copyWsUrl(){
+      const token = document.getElementById("token").value.trim();
+      if(!token){
+        toast("❗ Put token first to generate URL.");
+        return;
+      }
+      const url = WS_URL();
+      navigator.clipboard.writeText(url).then(()=>{
+        toast("✅ WS URL copied to clipboard.");
+      }).catch(()=>{
+        toast("⚠️ Could not copy. Your browser may block clipboard.");
+      });
+    }
+
+    // initial state
+    setStatus(false, "Disconnected");
   </script>
 </body>
 </html>
