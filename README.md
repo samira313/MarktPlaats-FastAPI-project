@@ -34,7 +34,7 @@ The project focuses on:
 - Protected endpoints (requires authentication)
 - Conversation logic between sender and receiver
 - WebSocket support for real-time messaging
-- 
+
 ### 📢 Advertisements (Ads)
 - Create, read, update and delete ads
 - Public listing of ads
